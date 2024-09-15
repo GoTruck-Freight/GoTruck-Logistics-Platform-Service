@@ -5,4 +5,5 @@ export default class TruckCategoryService {
     return await db.truckCategory.findMany();
   }
 
+  
 }
