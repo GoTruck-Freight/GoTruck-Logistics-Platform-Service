@@ -1,8 +1,8 @@
-import prisma from '../../../prisma/client';
+import { db } from '../../../utils/db.server';
 
 export default class TruckCategoryService {
   static async getAll() {
-    return await prisma.truckCategory.findMany();
+    return await db.truckCategory.findMany();
   }
 
   // Digər biznes məntiqi
