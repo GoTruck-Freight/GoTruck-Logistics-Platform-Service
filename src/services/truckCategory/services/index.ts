@@ -5,5 +5,4 @@ export default class TruckCategoryService {
     return await db.truckCategory.findMany();
   }
 
-  // Digər biznes məntiqi
 }

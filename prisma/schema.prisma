@@ -7,10 +7,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-//Model
+//Modeling
 
 model User {
   id    Int     @id @default(autoincrement())
   email String  @unique
   name  String?
+}
+
+model TruckCategory {
+  id   Int    @id @default(autoincrement())
+  name String
 }

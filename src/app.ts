@@ -1,10 +1,15 @@
 import express, { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import categoryRouter from './services/truckCategory/routes';
 
 const app = express();
 const prisma = new PrismaClient();
 
 app.use(express.json());
+
+
+// Main Routes
+app.use('/api/category/', categoryRouter);
 
 app.get('/health', (req: Request, res: Response) => {
   res.send('Server is healthy!');
