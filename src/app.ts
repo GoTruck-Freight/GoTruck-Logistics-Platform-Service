@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import categoryRouter from './services/truckCategory/routes';
+import priceRouter from './services/price/routes'; // Add this line to import priceRouter
 
 const app = express();
 const prisma = new PrismaClient();
@@ -10,7 +11,7 @@ app.use(express.json());
 
 // Main Routes
 app.use('/api/category/', categoryRouter);
-
+app.use('/api/price/', priceRouter);
 app.get('/health', (req: Request, res: Response) => {
   res.send('Server is healthy!');
 });
