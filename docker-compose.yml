@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: gotruck234789
+      POSTGRES_DB: gotruckDB
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+  app:
+    build: .
+    restart: always
+    ports:
+      - '4000:4000'
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://postgres:gotruck234789@db:5432/gotruckDB
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+    # Prisma CLI üçün xüsusi konteyner
+  prisma:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: "postgres://postgres:gotruck234789@db:5432/gotruckDB"
+    depends_on:
+      - db
+    command: [ "sh", "-c", "npm install && npx prisma migrate dev && npx prisma studio" ]
+    ports:
+      - '5555:5555' 
+
+volumes:
+  db_data:
