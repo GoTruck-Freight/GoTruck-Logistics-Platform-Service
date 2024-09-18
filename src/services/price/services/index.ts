@@ -59,6 +59,6 @@ export default class PriceService {
       
         const totalPrice = pricing.basePrice + ((pricing.distance)/1000 * distance);
       
-        return totalPrice;
+        return Math.round(totalPrice / 5) * 5;
     }
 }
