@@ -57,7 +57,7 @@ export default class PriceService {
           throw new Error('Uyğun qiymət tapılmadı.');
         }
       
-        const totalPrice = pricing.basePrice + (pricing.distance * distance);
+        const totalPrice = pricing.basePrice + ((pricing.distance)/1000 * distance);
       
         return totalPrice;
     }
