@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import cors from 'cors'; // CORS paketini import edin
+import cors from 'cors';
 import categoryRouter from './services/truckCategory/routes';
 import priceRouter from './services/price/routes';
 import orderRouter from './services/order/routes';
