@@ -22,6 +22,7 @@ export default class PriceService {
           },
         });
     }
+    
     static async update (id: number, basePrice:number, distance: number, weight: number, truckId: number) {
         return await db.pricing.update({
           where: {
@@ -35,6 +36,7 @@ export default class PriceService {
           },
         });
     }
+
     static async delete (id: number) {
         return await db.pricing.delete({
           where: {

@@ -24,13 +24,11 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-    # Prisma CLI üçün xüsusi konteyner
   prisma:
     build:
       context: .
       dockerfile: Dockerfile
     environment:
-      # Postgres bağlantı məlumatları
       DATABASE_URL: "postgres://postgres:gotruck234789@db:5432/gotruckDB"
     depends_on:
       - db
