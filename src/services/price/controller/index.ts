@@ -26,8 +26,8 @@ export default class PriceController {
     res.status(204).send();
   }
   static async calculatePrice(req: Request, res: Response) {
-    const { distance, weight, truckCategoryId } = req.body;
-    const totalPrice = await PriceService.calculatePrice({ distance, weight, truckCategoryId });
+    const { distance, weight, truckCategoryId, origin,destination } = req.body;
+    const totalPrice = await PriceService.calculatePrice({ distance, weight, truckCategoryId, origin, destination});
     res.json(totalPrice);
   }
 }

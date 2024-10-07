@@ -18,6 +18,7 @@ model Order {
   dropoffDate     DateTime
   status          OrderStatus   @default(PENDING)
   phoneNumber     String
+  payment         Int
   priceId         Int
   price           Pricing       @relation(fields: [priceId], references: [id])
   truckCategoryId Int
