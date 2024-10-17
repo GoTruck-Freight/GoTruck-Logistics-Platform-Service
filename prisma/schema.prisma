@@ -64,3 +64,15 @@ model TruckCategory {
   prices Pricing[]
   orders Order[] // Order modeli ilə əlaqə
 }
+
+model Location {
+  id           Int      @id @default(autoincrement())
+  name         String
+  maxDistance  Float
+  price        Float
+  startLat     Float
+  startLng     Float
+  endLat       Float
+  endLng       Float
+  direction    Int
+}

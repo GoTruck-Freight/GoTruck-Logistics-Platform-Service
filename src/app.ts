@@ -4,6 +4,7 @@ import cors from 'cors';
 import categoryRouter from './services/truckCategory/routes';
 import priceRouter from './services/price/routes';
 import orderRouter from './services/order/routes';
+import locationRouter from './services/locations/routes';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use('/api/category/', categoryRouter);
 app.use('/api/price/', priceRouter);
 app.use('/api/order/', orderRouter);
+app.use('/api/location/', locationRouter);
 
 app.get('/health', (req: Request, res: Response) => {
   res.send('Server is healthy!');
