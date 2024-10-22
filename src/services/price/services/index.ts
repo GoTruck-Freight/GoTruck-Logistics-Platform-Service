@@ -52,7 +52,6 @@ export default class PriceService {
   static async calculatePrice(params: PriceParams) {
     const { distance, weight, truckCategoryId, origin, destination } = params;
 
-    console.log(origin, destination);
     const pricing = await db.pricing.findFirst({
       where: {
         truckId: truckCategoryId
@@ -72,7 +71,6 @@ export default class PriceService {
 
 
   static async calculateExtraPrice(origin: string, destination: string): Promise<number> {
-    console.log(origin + ': ' + destination)
     let extraPrice = 0;
     const response = await axios.get(`https://maps.googleapis.com/maps/api/directions/json`, {
       params: {
@@ -82,49 +80,77 @@ export default class PriceService {
       },
     });
 
-    const locations = {
-      maxDistance: 200,
-      price: 0.6,
-      start_location: {
-        "lat": 40.139859,
-        "lng": 48.724920
-      },
-      end_location: {
-        "lat": 40.194576,
-        "lng": 48.595572
-      },
-      direction: 1
-    };
-    const steps = response.data.routes[0].legs[0].steps;
-
-    const isDirectionMatch = [
-      (element: { start_location: { lat: number, lng: number }, end_location: { lat: number, lng: number } }, locations: any) => {
-        return locations.start_location.lng <= element.start_location.lng
-          && locations.end_location.lng >= element.end_location.lng
-          && locations.start_location.lat >= element.start_location.lat
-          && locations.end_location.lat <= element.end_location.lat;
-      },
-      (element: { start_location: { lat: number, lng: number }, end_location: { lat: number, lng: number } }, locations: any) => {
-        return locations.start_location.lng <= element.start_location.lng
-          && locations.end_location.lng >= element.end_location.lng
-          && locations.start_location.lat <= element.start_location.lat
-          && locations.end_location.lat >= element.end_location.lat;
+    const start_location = response.data.routes[0].legs[0].start_location;
+    const end_location = response.data.routes[0].legs[0].end_location;
+    let direction;
+    if (start_location.lat > end_location.lat) {
+      if (start_location.lat > end_location.lng) {
+        direction = 2;
+      } else {
+        direction = 3;
       }
+    } else {
+      if (start_location.lng > end_location.lng) {
+        direction = 1;
+      } else {
+        direction = 4;
+      }
+    }
+    const steps = response.data.routes[0].legs[0].steps;
+    const isDirectionMatch = [
+      (element: { start_location: { lat: number, lng: number }, end_location: { lat: number, lng: number } }, location: { startLat: number, startLng: number, endLat: number, endLng: number }) => {
+        return location.startLng <= element.start_location.lng
+          && location.endLng >= element.end_location.lng
+          && location.startLat >= element.start_location.lat
+          && location.endLat <= element.end_location.lat;
+      },
+      (element: { start_location: { lat: number, lng: number }, end_location: { lat: number, lng: number } }, location: { startLat: number, startLng: number, endLat: number, endLng: number }) => {
+        return location.startLng <= element.start_location.lng
+          && location.endLng >= element.end_location.lng
+          && location.startLat <= element.start_location.lat
+          && location.endLat >= element.end_location.lat;
+      },
+      (element: { start_location: { lat: number, lng: number }, end_location: { lat: number, lng: number } }, location: { startLat: number, startLng: number, endLat: number, endLng: number }) => {
+        return location.startLng >= element.start_location.lng
+          && location.endLng <= element.end_location.lng
+          && location.startLat <= element.start_location.lat
+          && location.endLat >= element.end_location.lat;
+      },
+      (element: { start_location: { lat: number, lng: number }, end_location: { lat: number, lng: number } }, location: { startLat: number, startLng: number, endLat: number, endLng: number }) => {
+        return location.startLng >= element.start_location.lng
+          && location.endLng <= element.end_location.lng
+          && location.startLat >= element.start_location.lat
+          && location.endLat <= element.end_location.lat;
+      },
     ];
-      steps.forEach((element: {
-        start_location: {
-          lat: number; lng: number
-        }, end_location: {
-          lat: number; lng: number
+    const locations = await db.location.findMany();
+    steps.forEach((element: {
+      start_location: {
+        lat: number; lng: number
+      }, end_location: {
+        lat: number; lng: number
+      }
+    }, index: number) => {
+      let direction;
+      if (element.start_location.lat > element.end_location.lat) {
+        if (element.start_location.lat > element.end_location.lng) {
+          direction = 2;
+        } else {
+          direction = 3;
         }
-      }, index: number) => {
-        if (isDirectionMatch[locations.direction-1](element, locations)) {
-          console.log(`Step ${index}: yesssss`);
-          extraPrice = 1000;
+      } else {
+        if (element.start_location.lng > element.end_location.lng) {
+          direction = 1;
+        } else {
+          direction = 4;
         }
-      });
-    // console.log(response.data.routes[0].legs[0]);
-    // Implementation goes here
+      }
+      locations.map((location: any) => {
+      if (location.direction == direction && isDirectionMatch[location.direction - 1](element, location)) {
+        extraPrice = location.maxDistance * location.price;
+      }
+    });
+    });
 
     return extraPrice;
   }

@@ -9,6 +9,7 @@ interface LocationCreateInput {
   endLng: number;
   direction: number;
   maxDistance: number;
+  truckId: number;
 }
 
 export const locationService = {
@@ -17,7 +18,7 @@ export const locationService = {
   },
 
   async getAllLocations() {
-    return await db.location.findMany();
+    return (await db.location.findMany()).reverse();
   },
 
   async getLocationById(id: number) {

@@ -63,6 +63,7 @@ model TruckCategory {
   height Float
   prices Pricing[]
   orders Order[] // Order modeli ilə əlaqə
+  location Location[]
 }
 
 model Location {
@@ -75,4 +76,6 @@ model Location {
   endLat       Float
   endLng       Float
   direction    Int
+  truckId      Int                                     
+  truck        TruckCategory @relation(fields: [truckId], references: [id])
 }
