@@ -62,7 +62,7 @@ export default class PriceService {
       throw new Error('Uyğun qiymət tapılmadı.');
     }
 
-    const extraPrice = await this.calculateExtraPrice(origin, destination);
+    const extraPrice = await this.calculateExtraPrice(origin, destination, truckCategoryId);
 
     const totalPrice = pricing.basePrice + ((pricing.distance) / 1000 * distance) + extraPrice;
 
@@ -70,7 +70,7 @@ export default class PriceService {
   }
 
 
-  static async calculateExtraPrice(origin: string, destination: string): Promise<number> {
+  static async calculateExtraPrice(origin: string, destination: string,truckCategoryId:number): Promise<number> {
     let extraPrice = 0;
     const response = await axios.get(`https://maps.googleapis.com/maps/api/directions/json`, {
       params: {
@@ -80,22 +80,6 @@ export default class PriceService {
       },
     });
 
-    const start_location = response.data.routes[0].legs[0].start_location;
-    const end_location = response.data.routes[0].legs[0].end_location;
-    let direction;
-    if (start_location.lat > end_location.lat) {
-      if (start_location.lat > end_location.lng) {
-        direction = 2;
-      } else {
-        direction = 3;
-      }
-    } else {
-      if (start_location.lng > end_location.lng) {
-        direction = 1;
-      } else {
-        direction = 4;
-      }
-    }
     const steps = response.data.routes[0].legs[0].steps;
     const isDirectionMatch = [
       (element: { start_location: { lat: number, lng: number }, end_location: { lat: number, lng: number } }, location: { startLat: number, startLng: number, endLat: number, endLng: number }) => {
