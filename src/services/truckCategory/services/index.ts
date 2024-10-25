@@ -2,7 +2,7 @@ import { db } from '../../../utils/db.server';
 
 export default class TruckCategoryService {
   static async getAll() {
-    return await db.truckCategory.findMany();
+    return (await db.truckCategory.findMany()).reverse();
   }
 
   static async create(name: string, weight: number, imageUrl: string, capacity: number, length: number, width: number, height: number) {

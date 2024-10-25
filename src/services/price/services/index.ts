@@ -70,7 +70,7 @@ export default class PriceService {
   }
 
 
-  static async calculateExtraPrice(origin: string, destination: string,truckCategoryId:number): Promise<number> {
+  static async calculateExtraPrice(origin: string, destination: string, truckCategoryId: number): Promise<number> {
     let extraPrice = 0;
     const response = await axios.get(`https://maps.googleapis.com/maps/api/directions/json`, {
       params: {
@@ -107,7 +107,13 @@ export default class PriceService {
           && location.endLat <= element.end_location.lat;
       },
     ];
-    const locations = await db.location.findMany();
+    const locations = await db.location.findMany(
+      {
+        where: {
+          truckId: truckCategoryId
+        }
+      }
+    );
     steps.forEach((element: {
       start_location: {
         lat: number; lng: number
@@ -130,10 +136,10 @@ export default class PriceService {
         }
       }
       locations.map((location: any) => {
-      if (location.direction == direction && isDirectionMatch[location.direction - 1](element, location)) {
-        extraPrice = location.maxDistance * location.price;
-      }
-    });
+        if (location.direction == direction && isDirectionMatch[location.direction - 1](element, location)) {
+          extraPrice = location.maxDistance * location.price;
+        }
+      });
     });
 
     return extraPrice;
