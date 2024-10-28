@@ -45,7 +45,8 @@ model Pricing {
   id         Int      @id @default(autoincrement())  
   basePrice  Float                                   
   distance   Float                                   
-  weight     Float                                   
+  weight     Float
+  elevationFactor Float?                                  
   truckId    Int                                     
   truck      TruckCategory @relation(fields: [truckId], references: [id])
   orders     Order[]

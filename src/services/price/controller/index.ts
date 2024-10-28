@@ -9,15 +9,15 @@ export default class PriceController {
   }
 
   static async createPrice(req: Request, res: Response) {
-    const { basePrice, weight, truckCategoryId, distance } = req.body;
-    const newPrice = await PriceService.create(basePrice, distance, weight, truckCategoryId);
+    const { basePrice, weight, truckCategoryId, distance, elevationFactor } = req.body;
+    const newPrice = await PriceService.create(basePrice, distance, weight, truckCategoryId, elevationFactor);
     res.json(newPrice);
   }
 
   static async updatePrice(req: Request, res: Response) {
     const { id } = req.params;
-    const { basePrice,distance, weight, truckCategoryId } = req.body;
-    const updatedPrice = await PriceService.update(+id,basePrice, distance, weight, truckCategoryId);
+    const { basePrice, distance, weight, truckCategoryId, elevationFactor } = req.body;
+    const updatedPrice = await PriceService.update(+id, basePrice, distance, weight, truckCategoryId, elevationFactor);
     res.json(updatedPrice);
   }
   static async deletePrice(req: Request, res: Response) {
