@@ -22,7 +22,7 @@ export default class PriceService {
         distance,
         weight,
         truckId,
-        elevationFactor, // Yeni sahə əlavə olundu
+        elevationFactor,
       },
     });
   }
@@ -35,7 +35,7 @@ export default class PriceService {
         distance,
         weight,
         truckId,
-        elevationFactor, // Yeni sahə əlavə olundu
+        elevationFactor,
       },
     });
   }
@@ -49,7 +49,6 @@ export default class PriceService {
   static async calculatePrice(params: PriceParams) {
     const { distance, weight, truckCategoryId, origin, destination } = params;
 
-    // Qiymət cədvəlində uyğun olan qiymət məlumatını əldə edirik
     const pricing = await db.pricing.findFirst({
       where: { truckId: truckCategoryId },
     });
@@ -58,12 +57,8 @@ export default class PriceService {
       throw new Error('Uyğun qiymət tapılmadı.');
     }
 
-    // Elevation fərqini hesablayaraq əlavə qiyməti hesablayırıq
-    const elevationDifference = await this.getElevationDifference(origin, destination);
-    const elevationExtraCost = elevationDifference * (pricing.elevationFactor ?? 0);
-    console.log("elevationExtraCost"+elevationExtraCost);
     const extraPrice = await this.calculateExtraPrice(origin, destination, truckCategoryId);
-    const totalPrice = pricing.basePrice + ((pricing.distance / 1000) * distance) + extraPrice + elevationExtraCost;
+    const totalPrice = pricing.basePrice + ((pricing.distance / 1000) * distance) + extraPrice;
 
     return Math.round(totalPrice / 5) * 5;
   }
@@ -79,6 +74,7 @@ export default class PriceService {
 
   static async calculateExtraPrice(origin: string, destination: string, truckCategoryId: number): Promise<number> {
     let extraPrice = 0;
+    let maxElevationDifference = 0;
 
     const response = await axios.get(`https://maps.googleapis.com/maps/api/directions/json`, {
       params: {
@@ -89,6 +85,7 @@ export default class PriceService {
     });
 
     const steps = response.data.routes[0].legs[0].steps;
+
     const isDirectionMatch = [
       (element: { start_location: { lat: number, lng: number }, end_location: { lat: number, lng: number } }, location: { startLat: number, startLng: number, endLat: number, endLng: number }) => {
         return location.startLng <= element.start_location.lng
@@ -115,33 +112,40 @@ export default class PriceService {
           && location.endLat <= element.end_location.lat;
       },
     ];
+
     const locations = await db.location.findMany({
       where: { truckId: truckCategoryId }
     });
 
-    steps.forEach((element: { start_location: any; end_location: any; }, index: any) => {
-      let direction;
-      if (element.start_location.lat > element.end_location.lat) {
-        if (element.start_location.lat > element.end_location.lng) {
-          direction = 2;
-        } else {
-          direction = 3;
-        }
-      } else {
-        if (element.start_location.lng > element.end_location.lng) {
-          direction = 1;
-        } else {
-          direction = 4;
-        }
-      }
-      locations.map((location) => {
-        if (location.direction === direction && isDirectionMatch[location.direction - 1](element, location)) {
-          extraPrice = location.maxDistance * location.price;
-        }
-      });
-    });
+    for (const step of steps) {
+        const startLocation = `${step.start_location.lat},${step.start_location.lng}`;
+        const endLocation = `${step.end_location.lat},${step.end_location.lng}`;
 
-    return extraPrice;
+        const startElevation = await this.getElevation(startLocation);
+        const endElevation = await this.getElevation(endLocation);
+        const elevationDifference = Math.abs(endElevation - startElevation);
+
+        maxElevationDifference = Math.max(maxElevationDifference, elevationDifference);
+
+        let direction;
+        if (step.start_location.lat > step.end_location.lat) {
+          direction = step.start_location.lng > step.end_location.lng ? 2 : 3;
+        } else {
+          direction = step.start_location.lng > step.end_location.lng ? 1 : 4;
+        }
+
+        locations.forEach((location) => {
+          if (location.direction === direction && isDirectionMatch[location.direction - 1](step, location)) {
+            extraPrice += location.maxDistance * location.price;
+          }
+        });
+    }
+
+    const pricing = await db.pricing.findFirst({ where: { truckId: truckCategoryId } });
+    const elevationExtraCost = maxElevationDifference * (pricing?.elevationFactor ?? 0);
+    console.log("this: "+elevationExtraCost);
+    console.log("this: ex"+extraPrice);
+    return extraPrice + elevationExtraCost;
   }
 
   static async getElevationDifference(originPlaceId: string, destinationPlaceId: string): Promise<number> {
@@ -160,5 +164,13 @@ export default class PriceService {
     const destinationElevation = destinationElevationResponse.data.results[0].elevation;
 
     return Math.abs(destinationElevation - originElevation);
+  }
+
+  static async getElevation(location: string): Promise<number> {
+    const apiKey = "AIzaSyD9JBkYu-uZAPoojnbSD_6ZNUm_SGkmpO4";
+    const response = await axios.get(`https://maps.googleapis.com/maps/api/elevation/json`, {
+      params: { locations: location, key: apiKey }
+    });
+    return response.data.results[0]?.elevation || 0;
   }
 }
