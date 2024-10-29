@@ -10,23 +10,21 @@ datasource db {
 //Modeling
 
 model Order {
-  id              Int           @id @default(autoincrement())
-  orderNumber     String        @unique
-  pickupLocation  String
-  pickupLocationName String
-  dropoffLocation String
+  id                  Int           @id @default(autoincrement())
+  orderNumber         String        @unique
+  pickupLocation      String
+  pickupLocationName  String
+  dropoffLocation     String
   dropoffLocationName String
-  pickupDate      DateTime?
-  dropoffDate     DateTime
-  status          OrderStatus   @default(PENDING)
-  phoneNumber     String
-  payment         Int
-  priceId         Int
-  price           Pricing       @relation(fields: [priceId], references: [id])
-  truckCategoryId Int
-  truckCategory   TruckCategory @relation(fields: [truckCategoryId], references: [id])
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  pickupDate          DateTime
+  dropoffDate         DateTime?
+  status              OrderStatus   @default(PENDING)
+  phoneNumber         String
+  payment             Int
+  truckCategoryId     Int
+  truckCategory       TruckCategory @relation(fields: [truckCategoryId], references: [id])
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
 }
 
 enum OrderStatus {
@@ -42,43 +40,42 @@ model User {
   name  String?
 }
 
-
 model Pricing {
-  id         Int      @id @default(autoincrement())  
-  basePrice  Float                                   
-  distance   Float                                   
-  weight     Float
-  elevationFactor Float?                                  
-  truckId    Int                                     
-  truck      TruckCategory @relation(fields: [truckId], references: [id])
-  orders     Order[]
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id              Int           @id @default(autoincrement())
+  basePrice       Float
+  distance        Float
+  weight          Float
+  elevationFactor Float?
+  truckId         Int
+  truck           TruckCategory @relation(fields: [truckId], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 }
+
 model TruckCategory {
-  id   Int    @id @default(autoincrement())
-  name String
-  weight Int
+  id       Int        @id @default(autoincrement())
+  name     String
+  weight   Int
   imageUrl String
   capacity Int
-  length Float
-  width  Float
-  height Float
-  prices Pricing[]
-  orders Order[] // Order modeli ilə əlaqə
+  length   Float
+  width    Float
+  height   Float
+  prices   Pricing[]
+  orders   Order[] // Order modeli ilə əlaqə
   location Location[]
 }
 
 model Location {
-  id           Int      @id @default(autoincrement())
-  name         String
-  maxDistance  Float
-  price        Float
-  startLat     Float
-  startLng     Float
-  endLat       Float
-  endLng       Float
-  direction    Int
-  truckId      Int                                     
-  truck        TruckCategory @relation(fields: [truckId], references: [id])
+  id          Int           @id @default(autoincrement())
+  name        String
+  maxDistance Float
+  price       Float
+  startLat    Float
+  startLng    Float
+  endLat      Float
+  endLng      Float
+  direction   Int
+  truckId     Int
+  truck       TruckCategory @relation(fields: [truckId], references: [id])
 }
