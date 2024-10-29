@@ -13,8 +13,10 @@ model Order {
   id              Int           @id @default(autoincrement())
   orderNumber     String        @unique
   pickupLocation  String
+  pickupLocationName String
   dropoffLocation String
-  pickupDate      DateTime
+  dropoffLocationName String
+  pickupDate      DateTime?
   dropoffDate     DateTime
   status          OrderStatus   @default(PENDING)
   phoneNumber     String
