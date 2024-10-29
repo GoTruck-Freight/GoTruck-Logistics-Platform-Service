@@ -68,10 +68,31 @@ export default class OrderController {
       const statusParam = req.params.status as string;
       // OrderStatus enumundan istifadə edərək statusu yoxlayırıq
       if (!Object.values(OrderStatus).includes(statusParam as OrderStatus)) {
-        return res.status(400).json({ error: 'Yanlış status dəyəri' });
+        res.status(400).json({ error: 'Yanlış status dəyəri' });
+        return;
       }
       const status = statusParam as OrderStatus;
       const orders = await OrderService.getOrdersByStatus(status);
+      res.status(200).json(orders);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+  static async getOrdersWithPagination(req: Request, res: Response): Promise<void> {
+    try {
+      // Sorğudan `page` və `pageSize` parametrlərini alırıq
+      const pageParam = req.query.page as string;
+      const pageSizeParam = req.query.pageSize as string;
+
+      // Parametrləri tam ədədə çeviririk və yoxlayırıq
+      const page = parseInt(pageParam, 10) || 1; // Default dəyər 1
+      const pageSize = parseInt(pageSizeParam, 10) || 10; // Default dəyər 10
+
+      if (page < 1 || pageSize < 1) {
+        res.status(400).json({ error: 'Səhifə nömrəsi və səhifə ölçüsü 1-dən böyük olmalıdır' });
+      }
+
+      const orders = await OrderService.getOrdersWithPagination(page, pageSize);
       res.status(200).json(orders);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
