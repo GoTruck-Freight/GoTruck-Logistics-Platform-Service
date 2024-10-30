@@ -8,10 +8,14 @@ export default class OrderService {
         });
     }
 
-    // Bütün sifarişləri əldə etmək
-    static async getAllOrders(): Promise<any[]> {
-        return await db.order.findMany();
-    }
+  // Bütün sifarişləri id-yə görə enən sıralama ilə əldə etmək
+static async getAllOrders(): Promise<any[]> {
+    return await db.order.findMany({
+        orderBy: {
+            id: 'desc', // Enən sıralama üçün 'desc' istifadə edilir
+        },
+    });
+}
 
     // ID üzrə sifarişi əldə etmək
     static async getOrderById(orderId: number): Promise<any | null> {

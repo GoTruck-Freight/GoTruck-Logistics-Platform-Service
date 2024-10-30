@@ -64,6 +64,30 @@ model TruckCategory {
   prices   Pricing[]
   orders   Order[] // Order modeli ilə əlaqə
   location Location[]
+  drivers   Driver[]
+}
+
+enum Degree {
+  DEGREE_1
+  DEGREE_2
+  DEGREE_3
+  DEGREE_4
+  DEGREE_5
+  DEGREE_6
+  DEGREE_7
+}
+
+model Driver {
+  id              Int           @id @default(autoincrement())
+  name            String
+  phoneNumber     String        @unique
+  licenseNumber   String
+  truckCategoryId Int           // TruckCategory modelinə xarici açar
+  degree          Degree        @default(DEGREE_1)
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  truckCategory   TruckCategory @relation(fields: [truckCategoryId], references: [id]) // TruckCategory ilə əlaqə
 }
 
 model Location {
