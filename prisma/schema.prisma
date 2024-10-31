@@ -66,6 +66,11 @@ model TruckCategory {
   location Location[]
   drivers   Driver[]
 }
+enum Role {
+  ADMIN
+  DRIVER
+  SHIPPER
+}
 
 enum Degree {
   DEGREE_1
@@ -75,6 +80,21 @@ enum Degree {
   DEGREE_5
   DEGREE_6
   DEGREE_7
+}
+
+model Account {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  role      Role     @default(SHIPPER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Account ilə yalnız bir Driver əlaqəsi
+  driver    Driver?  @relation("AccountToDriver", fields: [driverId], references: [id])
+  driverId  Int?     @unique
+
+  @@map("accounts")
 }
 
 model Driver {
@@ -87,7 +107,14 @@ model Driver {
   isActive        Boolean       @default(true)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
-  truckCategory   TruckCategory @relation(fields: [truckCategoryId], references: [id]) // TruckCategory ilə əlaqə
+
+  // Driver ilə əlaqəli Account
+  account         Account?      @relation("AccountToDriver")
+
+  // TruckCategory ilə əlaqə
+  truckCategory   TruckCategory @relation(fields: [truckCategoryId], references: [id])
+
+  @@map("drivers")
 }
 
 model Location {

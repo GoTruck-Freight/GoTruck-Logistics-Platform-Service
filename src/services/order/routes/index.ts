@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import OrderController from '../controller';
+import { authenticateToken } from '../../../middlewares/authMiddleware';
 
 const router = Router();
 
@@ -7,7 +8,7 @@ const router = Router();
 router.post('/', OrderController.createOrder);
 
 // Bütün sifarişləri əldə etmək
-router.get('/', OrderController.getAllOrders);
+router.get('/',authenticateToken, OrderController.getAllOrders);
 
 // ID üzrə sifarişi əldə etmək
 router.get('/:id', OrderController.getOrderById);

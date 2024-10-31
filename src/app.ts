@@ -5,6 +5,8 @@ import categoryRouter from './services/truckCategory/routes';
 import priceRouter from './services/price/routes';
 import orderRouter from './services/order/routes';
 import locationRouter from './services/locations/routes';
+import driverRouter from './services/driver/routes';
+import authRouter from './services/auth/routes';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -18,6 +20,8 @@ app.use('/api/category/', categoryRouter);
 app.use('/api/price/', priceRouter);
 app.use('/api/order/', orderRouter);
 app.use('/api/location/', locationRouter);
+app.use('/api/drivers/', driverRouter);
+app.use('/api/auth/', authRouter);
 
 app.get('/health', (req: Request, res: Response) => {
   res.send('Server is healthy!');
